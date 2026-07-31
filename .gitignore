@@ -27,6 +27,7 @@ PR_DESCRIPTION.md
 ISSUE_DESCRIPTION.md
 # database
 server/*.db
+server/prisma/*.db*
 server/*.exe
 # prisma generated client
 server/src/generated/

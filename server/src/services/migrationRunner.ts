@@ -10,8 +10,8 @@ const resolveDbPath = (): string => {
     if (filePath.startsWith("//")) {
       filePath = filePath.slice(2);
     }
-    if (filePath.startsWith("./") || filePath.startsWith("../")) {
-      return path.resolve(process.cwd(), filePath);
+    if (!path.isAbsolute(filePath)) {
+      return path.resolve(process.cwd(), "prisma", filePath);
     }
     return filePath;
   }
@@ -76,10 +76,25 @@ const applyMigration = async (db: Database, name: string, sqlPath: string) => {
 };
 
 export const runMigrationsIfNeeded = async (): Promise<void> => {
-  const migrationsPath = process.env.PRISMA_MIGRATIONS_PATH;
-  if (!migrationsPath) {
-    logger.info("PRISMA_MIGRATIONS_PATH not set. Skipping migrations.");
-    return;
+  const configuredMigrationsPath = process.env.PRISMA_MIGRATIONS_PATH;
+  const migrationsPath =
+    configuredMigrationsPath ||
+    path.resolve(process.cwd(), "prisma", "migrations");
+
+  try {
+    await fs.access(migrationsPath);
+  } catch (error) {
+    if (
+      !configuredMigrationsPath &&
+      (error as NodeJS.ErrnoException).code === "ENOENT"
+    ) {
+      logger.warn(
+        `Default migrations directory not found. Skipping migrations: ${migrationsPath}`,
+      );
+      return;
+    }
+
+    throw error;
   }
 
   const dbPath = resolveDbPath();
