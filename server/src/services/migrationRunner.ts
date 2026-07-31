@@ -10,8 +10,8 @@ const resolveDbPath = (): string => {
     if (filePath.startsWith("//")) {
       filePath = filePath.slice(2);
     }
-    if (filePath.startsWith("./") || filePath.startsWith("../")) {
-      return path.resolve(process.cwd(), filePath);
+    if (!path.isAbsolute(filePath)) {
+      return path.resolve(process.cwd(), "prisma", filePath);
     }
     return filePath;
   }
@@ -76,11 +76,9 @@ const applyMigration = async (db: Database, name: string, sqlPath: string) => {
 };
 
 export const runMigrationsIfNeeded = async (): Promise<void> => {
-  const migrationsPath = process.env.PRISMA_MIGRATIONS_PATH;
-  if (!migrationsPath) {
-    logger.info("PRISMA_MIGRATIONS_PATH not set. Skipping migrations.");
-    return;
-  }
+  const migrationsPath =
+    process.env.PRISMA_MIGRATIONS_PATH ||
+    path.resolve(process.cwd(), "prisma", "migrations");
 
   const dbPath = resolveDbPath();
   const db = new Database(dbPath);
