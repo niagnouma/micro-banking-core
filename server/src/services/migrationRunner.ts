@@ -76,9 +76,26 @@ const applyMigration = async (db: Database, name: string, sqlPath: string) => {
 };
 
 export const runMigrationsIfNeeded = async (): Promise<void> => {
+  const configuredMigrationsPath = process.env.PRISMA_MIGRATIONS_PATH;
   const migrationsPath =
-    process.env.PRISMA_MIGRATIONS_PATH ||
+    configuredMigrationsPath ||
     path.resolve(process.cwd(), "prisma", "migrations");
+
+  try {
+    await fs.access(migrationsPath);
+  } catch (error) {
+    if (
+      !configuredMigrationsPath &&
+      (error as NodeJS.ErrnoException).code === "ENOENT"
+    ) {
+      logger.warn(
+        `Default migrations directory not found. Skipping migrations: ${migrationsPath}`,
+      );
+      return;
+    }
+
+    throw error;
+  }
 
   const dbPath = resolveDbPath();
   const db = new Database(dbPath);
