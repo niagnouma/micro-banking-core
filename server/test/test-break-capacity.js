@@ -9,17 +9,21 @@ const ADMIN_PASSWORD = __ENV.ADMIN_PASSWORD || 'azerty6784';
 export const options = {
   scenarios: {
     break_capacity: {
-      executor: 'constant-arrival-rate',
-      rate: 4,
+      executor: 'ramping-arrival-rate',
+      startRate: 8,
       timeUnit: '1s',
-      duration: '30s',
-      preAllocatedVUs: 20,
-      maxVUs: 50,
+      stages: [
+        { target: 12, duration: '20s' },
+        { target: 16, duration: '20s' },
+        { target: 20, duration: '20s' },
+      ],
+      preAllocatedVUs: 40,
+      maxVUs: 100,
     },
   },
   thresholds: {
     http_req_failed: ['rate<0.1'],
-    http_req_duration: ['p(95)<2000'],
+    http_req_duration: ['p(95)<3000'],
     checks: ['rate>0.95'],
   },
 };
