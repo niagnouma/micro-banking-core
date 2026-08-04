@@ -1,4 +1,5 @@
 import dotenv from "dotenv";
+import path from "node:path";
 
 import app from "./app";
 import { databaseService } from "./services/database";
@@ -6,10 +7,11 @@ import logger from "./config/logger";
 import { startExpirationService, stopExpirationService } from "./services/cron";
 
 const tauriEnvPath = process.env.TAURI_ENV_PATH;
+const defaultEnvPath = path.resolve(__dirname, "..", ".env");
 if (tauriEnvPath) {
   dotenv.config({ path: tauriEnvPath });
 } else {
-  dotenv.config();
+  dotenv.config({ path: defaultEnvPath });
 }
 
 const normalizePath = (p: string | undefined): string | undefined => {
