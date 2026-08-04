@@ -2,8 +2,8 @@ import http from 'k6/http';
 import { sleep, check } from 'k6';
 
 const BASE_URL = __ENV.BASE_URL || 'http://127.0.0.1:3000';
-const ADMIN_USERNAME = __ENV.ADMIN_USERNAME || 'Dioman';
-const ADMIN_PASSWORD = __ENV.ADMIN_PASSWORD || 'Mouhammad';
+const ADMIN_USERNAME = __ENV.ADMIN_USERNAME || 'admin';
+const ADMIN_PASSWORD = __ENV.ADMIN_PASSWORD || 'azerty6784';
 
 export const options = {
   vus: 5,
